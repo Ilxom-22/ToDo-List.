@@ -86,4 +86,13 @@ public static partial class HostConfiguration
 
         return app;
     }
+
+    private static async ValueTask<WebApplication> MigrateDatabaseSchemaAsync(this WebApplication app)
+    {
+        var serviceScopeFactory = app.Services.GetRequiredKeyedService<IServiceScopeFactory>(null);
+
+        await serviceScopeFactory.MigrateAsync<AppDbContext>();
+
+        return app;
+    }
 }
