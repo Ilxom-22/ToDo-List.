@@ -1,0 +1,35 @@
+name: ToDoList application CI/CD pipeline
+
+on:
+  push:
+    branches: ["main"]
+  pull_request: 
+    branches: ["main"]
+  workflow_dispatch:
+
+env:
+  AZURE_WEBAPP_NAME: todo-list-app
+  AZURE_WEBAPP_PACKAGE_PATH: "./publish"
+  DOTNET_VERSION: '8.0.x'
+  APPLICATION_SOLUTION_FILE: ./src/ToDo.ServerApp/ToDo.ServerApp.sln
+
+jobs:
+  build_and_publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET Core application
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet restore ${{ env.APPLICATION_SOLUTION_FILE }}
+
+      - name: Build
+        run: dotnet build ${{ env.APPLICATION_SOLUTION_FILE }} --configuration Release --no-restore
+        
+      - name: Publish
+        run: dotnet publish ${{ env.APPLICATION_SOLUTION_FILE }} --configuration Release --no-build
