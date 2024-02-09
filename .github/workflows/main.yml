@@ -14,7 +14,7 @@ env:
   APPLICATION_SOLUTION_FILE: ./src/ToDo.ServerApp/ToDo.ServerApp.sln
 
 jobs:
-  build_and_publish:
+  build_and_deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -32,4 +32,11 @@ jobs:
         run: dotnet build ${{ env.APPLICATION_SOLUTION_FILE }} --configuration Release --no-restore
         
       - name: Publish
-        run: dotnet publish ${{ env.APPLICATION_SOLUTION_FILE }} --configuration Release --no-build
+        run: dotnet publish ${{ env.APPLICATION_SOLUTION_FILE }} --configuration Release --no-build --output ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+
+      - name: Deploy
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+          package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
